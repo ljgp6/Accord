@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accentColor">#FA2D48</color>
+    <color name="accentColorFainted">#1AFA2D48</color>
+
+    <color name="coverBorder">#1A000000</color>
+
+    <color name="surfaceColor">#000000</color>
+    <color name="onSurfaceColor">#D9FFFFFF</color>
+    <color name="onSurfaceColorFainted">#0DFFFFFF</color>
+    <color name="onSurfaceColorInactive">#80FFFFFF</color>
+
+    <color name="setupWizardSurfaceColor">#000000</color>
+    <color name="setupWizardCardColor">#111114</color>
+
+    <color name="defaultCoverColor">#30FFFFFF</color>
+    <color name="dividerColor">#12FFFFFF</color>
+
+    <color name="bottomNavigationColor">#000000</color>
+    <color name="bottomNavigationPanelColor">#111114</color>
+    <color name="bottomNavigationDividerColor">#38383A</color>
+    <color name="bottomNavigationInactiveTextColor">#98989F</color>
+    <color name="bottomSheetPreviewPlayerShadowColor">#00000000</color>
+</resources>

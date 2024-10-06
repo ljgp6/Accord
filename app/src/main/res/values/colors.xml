@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accentColor">#FA233B</color>
+    <color name="launcher_background_gradient_start">#FB5E76</color>
+    <color name="launcher_background_gradient_end">#FA233B</color>
+    <color name="onAccentColor">#FFFFFF</color>
+    <color name="accentColorFainted">#1AFA233B</color>
+    <color name="onAccentColorFainted">#1AFFFFFF</color>
+    <color name="coverBorder">#1A000000</color>
+
+    <color name="surfaceColor">#FFFFFF</color>
+    <color name="onSurfaceColor">#D9000000</color>
+    <color name="onSurfaceColorFainted">#0D000000</color>
+    <color name="onSurfaceColorInactive">#80000000</color>
+
+    <color name="defaultCoverColor">#30000000</color>
+    <color name="dividerColor">#12000000</color>
+
+    <color name="setupWizardSurfaceColor">#F8F8FC</color>
+    <color name="setupWizardCardColor">#FFFFFF</color>
+
+    <color name="windowColor">#000</color>
+
+    <!-- Bottom Navigation -->
+    <color name="bottomNavigationColor">#E5E5E5</color>
+    <color name="bottomNavigationPanelColor">#FCFCFC</color>
+    <color name="bottomNavigationDividerColor">#C6C6C8</color>
+    <color name="bottomNavigationInactiveTextColor">#8A8A8E</color>
+    <color name="bottomSheetPreviewPlayerShadowColor">#33000000</color>
+</resources>

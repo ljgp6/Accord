@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <dimen name="bottom_nav_height_raw">67dp</dimen>
+    <dimen name="bottom_nav_height">100dp</dimen>
+    <dimen name="bottom_nav_item_padding_bottom">8dp</dimen>
+    <dimen name="bottom_nav_item_padding_top">52dp</dimen>
+    <dimen name="preview_player_height">56dp</dimen>
+    <dimen name="splashscreen_icon_size">0dp</dimen>
+    <dimen name="bottom_panel_radius">16dp</dimen>
+    <dimen name="top_app_bar_height">110dp</dimen>
+    <dimen name="toolbar_height">58dp</dimen>
+    <dimen name="divider_height_top_app_bar">0.3dp</dimen>
+    <dimen name="toolbar_margin_bottom_offset">29dp</dimen>
+    <dimen name="shrink_container_default_radius">0dp</dimen>
+    <dimen name="tablayout_height">40dp</dimen>
+    <dimen name="tablayout_bottom_margin">8dp</dimen>
+    <dimen name="scroller_width">36dp</dimen>
+    <dimen name="scroller_char_size">10dp</dimen>
+</resources>

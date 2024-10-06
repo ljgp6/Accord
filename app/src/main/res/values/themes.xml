@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Accord" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:colorBackground">@color/surfaceColor</item>
+        <item name="colorAccent">@color/accentColor</item>
+        <item name="android:ambientShadowAlpha">0.05</item>
+        <item name="android:spotShadowAlpha">0.07</item>
+    </style>
+
+    <style name="Theme.Accord.Splash" parent="Theme.SplashScreen.IconBackground">
+        <item name="android:windowBackground">@drawable/ic_launcher_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.Accord</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_anim</item>
+        <item name="android:windowSplashScreenBehavior" tools:targetApi="tiramisu">icon_preferred</item>
+    </style>
+
+    <style name="Theme.Accord" parent="Base.Theme.Accord" />
+</resources>

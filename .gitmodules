@@ -1,0 +1,3 @@
+[submodule "libPhonograph"]
+	path = libPhonograph
+	url = https://github.com/AkaneTan/libPhonograph

@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Accord</string>
+    <string name="bottom_nav_search">Search</string>
+    <string name="bottom_nav_library">Library</string>
+    <string name="bottom_nav_browse">Browse</string>
+    <string name="bottom_nav_home">Home</string>
+    <string name="default_track">Not playing</string>
+    <string name="top_picks">Top Picks</string>
+    <string name="btn_continue">Continue</string>
+    <string name="welcome_to">Welcome to</string>
+    <string name="welcome_page_introduction">Play local songs and playlists ad-free on your Android device. Download music to listen offline. Experience sound all around you with Spatial Audio.</string>
+    <string name="disclaimer">Accord is a freeware and an offline app. Accord will not send any of your data online or use them for any purposes. Accord source code is published online with GPL-3.0 licenses. Certain restrictions are applied.</string>
+    <string name="check_source_code"><a href="https://github.com/AkaneFoundation/Accord"><u>Check source code …</u></a></string>
+    <string name="need_permissions">Need permissions</string>
+    <string name="permission_title_desc">Permissions are needed in order to play your music normally. Please check the description for each entry.</string>
+    <string name="storage">Storage</string>
+    <string name="storage_desc">Allow access to your music</string>
+    <string name="music">Music</string>
+    <string name="Album">Album</string>
+    <string name="album_desc">Allow access to your album cover</string>
+    <string name="album_cover_special_desc">Without the album permission, we can only read your album cover vaguely.</string>
+    <string name="allow">Allow</string>
+    <string name="allowed">Allowed</string>
+    <string name="sort">Sort</string>
+    <string name="category_songs">Songs</string>
+    <string name="category_albums">Albums</string>
+    <string name="category_artists">Artists</string>
+    <string name="category_genres">Genres</string>
+    <string name="category_dates">Dates</string>
+    <string name="play">Play</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="category_playlists">Playlists</string>
+</resources>
