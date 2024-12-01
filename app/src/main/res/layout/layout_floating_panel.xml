@@ -6,6 +6,7 @@
 
     <uk.akane.accord.ui.components.FullPlayer
         android:id="@+id/full_player"
+        android:alpha="0"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

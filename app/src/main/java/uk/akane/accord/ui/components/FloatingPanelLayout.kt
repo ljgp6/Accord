@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Outline
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
@@ -24,6 +25,7 @@ import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
 import androidx.window.layout.WindowMetricsCalculator
+import com.google.android.material.motion.MotionUtils
 import uk.akane.accord.R
 import uk.akane.accord.logic.dpToPx
 import uk.akane.accord.logic.scale
@@ -65,7 +67,7 @@ class FloatingPanelLayout @JvmOverloads constructor(
 
     private var isScrollingUp = false
 
-    private var retractThreshold = 0.1F
+    private var retractThreshold = 0.05F
 
     private var defaultMaxDuration = 350L
     private var defaultMinDuration = 220L
@@ -85,7 +87,7 @@ class FloatingPanelLayout @JvmOverloads constructor(
         fun onSlide(value: Float)
     }
 
-    var state: SlideStatus = SlideStatus.COLLAPSED
+    private var state: SlideStatus = SlideStatus.COLLAPSED
     var onSlideListener: OnSlideListener? = null
 
     inner class OutlineProvider(
@@ -112,6 +114,11 @@ class FloatingPanelLayout @JvmOverloads constructor(
         fullPlayer = findViewById(R.id.full_player)
         previewPlayer = findViewById(R.id.preview_player)
         outlineProvider = OutlineProvider(scaleX = 1.02f, scaleY = 1.00f, yShift = (-2).dpToPx(context))
+    }
+
+    override fun setBackground(background: Drawable?) {
+        super.setBackground(background)
+        fullPlayer?.let { it.background = background }
     }
 
     override fun dispatchApplyWindowInsets(platformInsets: WindowInsets): WindowInsets {
@@ -141,10 +148,6 @@ class FloatingPanelLayout @JvmOverloads constructor(
         doOnLayout {
             initialHeight = height
         }
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
     }
 
     @SuppressLint("ClickableViewAccessibility")

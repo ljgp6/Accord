@@ -50,6 +50,7 @@ android {
 dependencies {
 
     implementation(project(":libphonograph:libPhonograph"))
+    implementation(project(":Cupertino:Cupertino"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -62,7 +63,5 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.window)
     implementation(libs.androidx.media3.exoplayer)
-    
-    implementation("com.github.Dimezis:BlurView:version-2.0.5")
 
 }
