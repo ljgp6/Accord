@@ -72,6 +72,9 @@ class FloatingPanelLayout @JvmOverloads constructor(
     private var defaultUpActionDuration = 285L
     private var defaultInterpolator = PathInterpolator(0.2f, 0f, 0f, 1f)
 
+    private var fullPlayer: FullPlayer
+    private var previewPlayer: PreviewPlayer
+
     enum class SlideStatus {
         COLLAPSED, EXPANDED, SLIDING
     }
@@ -106,6 +109,8 @@ class FloatingPanelLayout @JvmOverloads constructor(
 
     init {
         inflate(context, R.layout.layout_floating_panel, this)
+        fullPlayer = findViewById(R.id.full_player)
+        previewPlayer = findViewById(R.id.preview_player)
         outlineProvider = OutlineProvider(scaleX = 1.02f, scaleY = 1.00f, yShift = (-2).dpToPx(context))
     }
 
@@ -260,16 +265,22 @@ class FloatingPanelLayout @JvmOverloads constructor(
     private fun onSlide(progress: Float) {
         onSlideListener?.onSlide(progress)
         val prevState = state
-        state = BigDecimal(progress.toDouble()).setScale(3, RoundingMode.HALF_UP).toDouble().let {
+        BigDecimal(progress.toDouble()).setScale(3, RoundingMode.HALF_UP).toDouble().let {
             when (it) {
                 1.0 -> {
-                    SlideStatus.EXPANDED
+                    state = SlideStatus.EXPANDED
+                    fullPlayer.alpha = 1F
+                    previewPlayer.alpha = 0F
                 }
                 0.0 -> {
-                    SlideStatus.COLLAPSED
+                    state = SlideStatus.COLLAPSED
+                    fullPlayer.alpha = 0F
+                    previewPlayer.alpha = 1F
                 }
                 else -> {
-                    SlideStatus.SLIDING
+                    state = SlideStatus.SLIDING
+                    fullPlayer.alpha = it.toFloat()
+                    previewPlayer.alpha = (1 - it).toFloat()
                 }
             }
         }

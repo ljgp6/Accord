@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Accord"
-include(":libphonograph:libPhonograph", ":app")
+include(":libphonograph:libPhonograph", ":app", ":Cupertino:Cupertino")

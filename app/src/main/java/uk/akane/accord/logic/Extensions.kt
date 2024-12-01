@@ -3,16 +3,19 @@ package uk.akane.accord.logic
 import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.AnyRes
 import androidx.annotation.FloatRange
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
@@ -196,6 +199,23 @@ fun AppBarLayout.applyOffsetListener() =
             }
         }
     })
+
+/**
+ * get uri to drawable or any other resource type if u wish
+ * @param drawableId - drawable res id
+ * @return - uri
+ */
+fun Context.getUriToDrawable(
+    @AnyRes drawableId: Int
+): Uri {
+    val imageUri = Uri.parse(
+        (ContentResolver.SCHEME_ANDROID_RESOURCE
+                + "://" + this.resources.getResourcePackageName(drawableId)
+                + '/' + this.resources.getResourceTypeName(drawableId)
+                + '/' + this.resources.getResourceEntryName(drawableId))
+    )
+    return imageUri
+}
 
 fun Context.hasMediaPermissionSeparation() =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU

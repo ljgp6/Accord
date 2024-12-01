@@ -1,3 +1,6 @@
 [submodule "libPhonograph"]
 	path = libPhonograph
 	url = https://github.com/AkaneTan/libPhonograph
+[submodule "Cupertino"]
+	path = Cupertino
+	url = https://github.com/FoedusProgramme/Cupertino
