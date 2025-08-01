@@ -26,11 +26,14 @@ import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.window.layout.WindowMetricsCalculator
 import uk.akane.accord.R
 import uk.akane.accord.logic.dp
 import uk.akane.accord.logic.scale
 import uk.akane.accord.ui.MainActivity
+import uk.akane.accord.ui.viewmodels.AccordViewModel
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.absoluteValue
@@ -52,6 +55,8 @@ class FloatingPanelLayout @JvmOverloads constructor(
 
     private val activity
         get() = context as MainActivity
+    private val viewModel: AccordViewModel = ViewModelProvider(context as ViewModelStoreOwner)
+        .get(AccordViewModel::class.java)
     private val windowHeight: Int
         get() = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(context).bounds.height()
     private var valueAnimator: ValueAnimator? = null
@@ -92,7 +97,10 @@ class FloatingPanelLayout @JvmOverloads constructor(
         fun onSlide(value: Float)
     }
 
-    private var state: SlideStatus = SlideStatus.COLLAPSED
+    private var state: SlideStatus
+        get() = viewModel.floatingPanelStatus.value
+        set(value) { viewModel.floatingPanelStatus.value = value }
+
     private var onSlideListeners: MutableList<OnSlideListener> = mutableListOf()
 
     inner class OutlineProvider(
@@ -128,6 +136,8 @@ class FloatingPanelLayout @JvmOverloads constructor(
                                 .getInsetsController(activity.window, this@FloatingPanelLayout)
                                 .isAppearanceLightStatusBars = false
                         }
+                        fullPlayer?.alpha = 1F
+                        previewPlayer.alpha = 0F
                     }
                     SlideStatus.COLLAPSED -> {
                         if (!isDarkMode(context) && !insetController.isAppearanceLightStatusBars) {
@@ -135,6 +145,8 @@ class FloatingPanelLayout @JvmOverloads constructor(
                                 .getInsetsController(activity.window, this@FloatingPanelLayout)
                                 .isAppearanceLightStatusBars = true
                         }
+                        fullPlayer?.alpha = 0F
+                        previewPlayer.alpha = 1F
                     }
                     SlideStatus.SLIDING -> {
                         if (!isDarkMode(context) && !insetController.isAppearanceLightStatusBars) {
@@ -147,9 +159,15 @@ class FloatingPanelLayout @JvmOverloads constructor(
             }
 
             override fun onSlide(value: Float) {
+                fullPlayer?.alpha = value
+                previewPlayer.alpha = 1f - value
             }
 
         })
+
+        doOnLayout {
+            initialHeight = height
+        }
     }
 
     fun addOnSlideListener(onSlideListener: OnSlideListener) {
@@ -168,7 +186,6 @@ class FloatingPanelLayout @JvmOverloads constructor(
             WindowInsetsCompat.Type.systemBars()
                     or WindowInsetsCompat.Type.displayCutout()
         )
-        Log.d("TAG", "marginBottom: ${marginBottom}, InsetsBottom: ${floatingInsets.bottom}")
         if (floatingInsets.bottom != 0) {
             initialMargin = intArrayOf(
                 marginLeft,
@@ -185,8 +202,26 @@ class FloatingPanelLayout @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        Log.d("TAG", "State: $state")
         doOnLayout {
-            initialHeight = height
+            onUp(
+                when (state) {
+                    SlideStatus.COLLAPSED -> false
+                    SlideStatus.EXPANDED -> true
+                    else -> null
+                },
+                false
+            )
+            onSlideListeners.forEach {
+                it.onSlideStatusChanged(state)
+                it.onSlide(
+                    when (state) {
+                        SlideStatus.COLLAPSED -> 0f
+                        SlideStatus.EXPANDED -> 1f
+                        else -> 0f
+                    }
+                )
+            }
         }
     }
 
@@ -220,6 +255,9 @@ class FloatingPanelLayout @JvmOverloads constructor(
     }
 
     override fun onSingleTapUp(event: MotionEvent): Boolean {
+        if (state == SlideStatus.COLLAPSED) {
+            onUp(true)
+        }
         return true
     }
 
@@ -266,11 +304,26 @@ class FloatingPanelLayout @JvmOverloads constructor(
         return true
     }
 
-    private fun onUp() {
+    fun onUp(isUp: Boolean? = null, shouldAnimate: Boolean = true) {
+        if (!shouldAnimate) {
+            setHeight(
+                if ((isUp == null && height > retractThreshold * windowHeight) ||
+                    isUp == true)
+                    windowHeight
+                else
+                    initialHeight,
+                true
+            )
+            return
+        }
         valueAnimator?.cancel()
         valueAnimator = ValueAnimator.ofInt(
             height,
-            if (height > retractThreshold * windowHeight) windowHeight else initialHeight
+            if ((isUp == null && height > retractThreshold * windowHeight) ||
+                isUp == true)
+                windowHeight
+            else
+                initialHeight
         )
         valueAnimator!!.apply {
             addUpdateListener {
@@ -294,7 +347,8 @@ class FloatingPanelLayout @JvmOverloads constructor(
             (initialMargin[3] * (1 - progress)).toInt()
         )
 
-    private fun setHeight(height: Int) {
+    private fun setHeight(height: Int, onRestart: Boolean = false) {
+        Log.d(TAG, "setHeight: $height, onRestart: $onRestart")
         progress = calculateProgressTillTop(height)
         getMarginWithProgress(progress).let {
             val layoutParams = CoordinatorLayout.LayoutParams(
@@ -306,11 +360,14 @@ class FloatingPanelLayout @JvmOverloads constructor(
             layoutParams.setMargins(it[0], it[1], it[2], it[3])
             layoutParams.gravity = Gravity.BOTTOM
             this.layoutParams = layoutParams
-            onSlide(progress)
+            if (!onRestart) {
+                onSlide(progress)
+            }
         }
     }
 
     private fun onSlide(progress: Float) {
+        Log.d(TAG, "onSlide: $progress")
         onSlideListeners.forEach {
             it.onSlide(progress)
         }
@@ -319,18 +376,12 @@ class FloatingPanelLayout @JvmOverloads constructor(
             when (it) {
                 1.0 -> {
                     state = SlideStatus.EXPANDED
-                    fullPlayer?.alpha = 1F
-                    previewPlayer.alpha = 0F
                 }
                 0.0 -> {
                     state = SlideStatus.COLLAPSED
-                    fullPlayer?.alpha = 0F
-                    previewPlayer.alpha = 1F
                 }
                 else -> {
                     state = SlideStatus.SLIDING
-                    fullPlayer?.alpha = it.toFloat()
-                    previewPlayer.alpha = (1 - it).toFloat()
                 }
             }
         }

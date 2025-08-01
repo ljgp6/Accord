@@ -4,40 +4,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.MediaItem
+import kotlinx.coroutines.flow.MutableStateFlow
 import uk.akane.accord.logic.utils.BottomSheetUtils
+import uk.akane.accord.ui.components.FloatingPanelLayout
 import uk.akane.libphonograph.items.Album
 import uk.akane.libphonograph.items.Artist
 import uk.akane.libphonograph.items.Date
 import uk.akane.libphonograph.items.FileNode
 import uk.akane.libphonograph.items.Genre
 
-class AccordViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
-    companion object {
-        const val BOTTOM_SHEET_STATE_TOKEN = "bottomSheetState"
-        const val BOTTOM_SHEET_PEEK_HEIGHT_TOKEN = "bottomSheetPeekHeight"
-        const val BOTTOM_NAV_STATE_TOKEN = "bottomNavState"
-        const val BOTTOM_NAV_TRANSLATION_TOKEN = "bottomNavTrans"
-    }
-    var bottomSheetState: BottomSheetUtils.ComponentState
-        get() = savedStateHandle[BOTTOM_SHEET_STATE_TOKEN] ?: BottomSheetUtils.ComponentState.HIDDEN
-        set(value) {
-            savedStateHandle[BOTTOM_SHEET_STATE_TOKEN] = value
-        }
-    var bottomNavState: BottomSheetUtils.ComponentState
-        get() = savedStateHandle[BOTTOM_NAV_STATE_TOKEN] ?: BottomSheetUtils.ComponentState.SHOWN
-        set(value) {
-            savedStateHandle[BOTTOM_NAV_STATE_TOKEN] = value
-        }
-    var bottomNavTranslation: Float
-        get() = savedStateHandle[BOTTOM_NAV_TRANSLATION_TOKEN] ?: 0f
-        set(value) {
-            savedStateHandle[BOTTOM_NAV_TRANSLATION_TOKEN] = value
-        }
-    var bottomSheetPeekHeight: Int
-        get() = savedStateHandle[BOTTOM_SHEET_PEEK_HEIGHT_TOKEN] ?: 0
-        set(value) {
-            savedStateHandle[BOTTOM_SHEET_PEEK_HEIGHT_TOKEN] = value
-        }
+class AccordViewModel() : ViewModel() {
+    // UI
+    val floatingPanelStatus = MutableStateFlow(FloatingPanelLayout.SlideStatus.COLLAPSED)
+
+    // MediaStore
     val mediaItemList: MutableLiveData<List<MediaItem>> = MutableLiveData()
     val albumItemList: MutableLiveData<List<Album>> = MutableLiveData()
     val albumArtistItemList: MutableLiveData<List<Artist>> = MutableLiveData()
