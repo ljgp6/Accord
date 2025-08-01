@@ -16,4 +16,5 @@
     <dimen name="tablayout_bottom_margin">8dp</dimen>
     <dimen name="scroller_width">36dp</dimen>
     <dimen name="scroller_char_size">10dp</dimen>
+    <dimen name="full_cover_radius">10dp</dimen>
 </resources>

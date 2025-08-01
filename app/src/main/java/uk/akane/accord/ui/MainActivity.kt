@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.os.Bundle
-import android.util.Log
 import android.view.RoundedCorner
 import android.view.View
 import androidx.activity.viewModels
@@ -39,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var shadeView: View
     private lateinit var screenCorners: UiUtils.ScreenCorners
 
+
     private var bottomInset: Int = 0
     private var bottomDefaultRadius: Int = 0
 
@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        UiUtils.init(this)
 
         bottomDefaultRadius = resources.getDimensionPixelSize(R.dimen.bottom_panel_radius)
         bottomNavigationPanelColor = getColor(R.color.bottomNavigationPanelColor)
@@ -73,22 +75,16 @@ class MainActivity : AppCompatActivity() {
         shadeView = findViewById(R.id.shade)
         shrinkContainerLayout = findViewById(R.id.shrink_container)
 
-        floatingPanelLayout.onSlideListener = object : FloatingPanelLayout.OnSlideListener {
+        floatingPanelLayout.addOnSlideListener(object : FloatingPanelLayout.OnSlideListener {
             override fun onSlideStatusChanged(status: FloatingPanelLayout.SlideStatus) {
                 when (status) {
-                    FloatingPanelLayout.SlideStatus.EXPANDED -> {
-
-                    }
                     FloatingPanelLayout.SlideStatus.COLLAPSED -> {
                         shrinkContainerLayout.apply {
                             scaleX = 1f
                             scaleY = 1f
-                            // setRenderEffect(null)
                         }
                     }
-                    FloatingPanelLayout.SlideStatus.SLIDING -> {
-
-                    }
+                    else -> {}
                 }
             }
 
@@ -119,8 +115,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
             }
-
-        }
+        })
 
         ViewCompat.setOnApplyWindowInsetsListener(bottomNavigationView) { v, windowInsetsCompat ->
             val insets = windowInsetsCompat.getInsets(WindowInsetsCompat.Type.navigationBars())

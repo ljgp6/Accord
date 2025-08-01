@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "uk.akane.accord"
-    compileSdk = 35
+    compileSdk = 36
 
     androidResources {
         generateLocaleConfig = true
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "uk.akane.accord"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }

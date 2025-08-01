@@ -115,7 +115,6 @@ class PermissionPageFragment : Fragment() {
     private var onAllowColor = 0
     private var onAllowedColor = 0
 
-    private lateinit var albumDescTextView: TextView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -141,7 +140,6 @@ class PermissionPageFragment : Fragment() {
         } else {
             musicConstraintLayout.visibility = View.GONE
             albumConstraintLayout.visibility = View.GONE
-            albumDescTextView.visibility = View.GONE
         }
 
         storagePermissionButton = rootView.findViewById(R.id.storage_apply_btn)
@@ -165,7 +163,7 @@ class PermissionPageFragment : Fragment() {
 
         storagePermissionButton.setOnClickListener {
             if (!requireContext().isEssentialPermissionGranted()) {
-                requestPermissionLauncher.launch(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+                requestPermissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
 
@@ -193,7 +191,6 @@ class PermissionPageFragment : Fragment() {
         } else {
             musicConstraintLayout.visibility = View.GONE
             albumConstraintLayout.visibility = View.GONE
-            albumDescTextView.visibility = View.GONE
             storagePermissionButton.isChecked = requireContext().isEssentialPermissionGranted()
             storagePermissionButton.text = if (storagePermissionButton.isChecked) allowedString else allowString
         }

@@ -12,6 +12,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -30,9 +31,12 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import uk.akane.accord.R
 import uk.akane.accord.logic.utils.AnimationUtils
+import uk.akane.accord.logic.utils.CalculationUtils.lerp
+import uk.akane.accord.logic.utils.UiUtils
 import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.math.max
+import androidx.core.net.toUri
 
 fun View.enableEdgeToEdgePaddingListener(
     ime: Boolean = false, top: Boolean = false,
@@ -154,13 +158,69 @@ fun ViewPager2.setCurrentItemInterpolated(
     animator.start()
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun Int.dpToPx(context: Context): Int =
-    (this.toFloat() * context.resources.displayMetrics.density).toInt()
+@JvmInline
+value class Dp(val value: Float) {
+    inline val px: Float
+        get() = value * UiUtils.density
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun Float.dpToPx(context: Context): Float =
-    (this * context.resources.displayMetrics.density)
+    companion object {
+        val Zero = Dp(0f)
+    }
+}
+
+inline val Int.dp: Dp
+    get() = Dp(this.toFloat())
+
+inline val Float.dp: Dp
+    get() = Dp(this)
+
+inline val Double.dp: Dp
+    get() = Dp(this.toFloat())
+
+
+@JvmInline
+value class Sp(val value: Float) {
+    inline val px: Float
+        get() = value * UiUtils.scaledDensity
+
+    companion object {
+        val Zero = Sp(0f)
+    }
+}
+
+inline val Int.sp: Sp
+    get() = Sp(this.toFloat())
+
+inline val Float.sp: Sp
+    get() = Sp(this)
+
+inline val Double.sp: Sp
+    get() = Sp(this.toFloat())
+
+fun floatAnimator(
+    duration: Long,
+    initialValue: Float = 0f,
+    targetValue: Float = 1f,
+    startDelay: Long = 0L,
+    interpolator: TimeInterpolator? = null,
+    listener: AnimationUtils.Animator.ValueUpdateListener<Float>
+) = AnimationUtils.LinearAnimator(
+    initialValue = initialValue,
+    targetValue = targetValue,
+    startDelay = startDelay,
+    duration = duration,
+    interpolator = interpolator,
+    listener = listener,
+    lerp = FloatLerp
+)
+
+private val FloatLerp = { from: Float, to: Float, fraction: Float -> lerp(from, to, fraction) }
+
+inline fun ViewGroup.forEachChild(block: (child: View) -> Unit) {
+    for (i in 0..<childCount) {
+        block(getChildAt(i))
+    }
+}
 
 fun Rect.scale(
     @FloatRange(from = -1.0, to = 1.0) scaleX: Float,
@@ -208,12 +268,10 @@ fun AppBarLayout.applyOffsetListener() =
 fun Context.getUriToDrawable(
     @AnyRes drawableId: Int
 ): Uri {
-    val imageUri = Uri.parse(
-        (ContentResolver.SCHEME_ANDROID_RESOURCE
-                + "://" + this.resources.getResourcePackageName(drawableId)
-                + '/' + this.resources.getResourceTypeName(drawableId)
-                + '/' + this.resources.getResourceEntryName(drawableId))
-    )
+    val imageUri = (ContentResolver.SCHEME_ANDROID_RESOURCE
+            + "://" + this.resources.getResourcePackageName(drawableId)
+            + '/' + this.resources.getResourceTypeName(drawableId)
+            + '/' + this.resources.getResourceEntryName(drawableId)).toUri()
     return imageUri
 }
 

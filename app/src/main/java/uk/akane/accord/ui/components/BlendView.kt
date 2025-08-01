@@ -5,16 +5,20 @@ import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
+import android.view.Choreographer
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
@@ -32,31 +36,36 @@ import uk.akane.accord.R
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlin.math.ceil
+import kotlin.math.cos
 
 class BlendView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes) {
+) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes),
+    Choreographer.FrameCallback {
 
     private val imageViewTS: ImageSwitcher
     private val imageViewBE: ImageSwitcher
     private val imageViewBG: ImageSwitcher
     private val rotateFrame: ConstraintLayout
-
-    private var isAnimationOngoing: Boolean = true
-    private val handler = Handler(Looper.getMainLooper())
+    private val blurredFrame: ConstraintLayout
     private val overlayColor = ContextCompat.getColor(context, R.color.frontShadeColor)
     private var previousBitmap: Bitmap? = null
+    private var curveBitmap: Bitmap? = null
+
+    private val overlayPaint = Paint().apply {
+        blendMode = BlendMode.SOFT_LIGHT
+        alpha = 30
+    }
 
     companion object {
         const val VIEW_TRANSIT_DURATION: Long = 400
-        const val FULL_BLUR_RADIUS: Float = 80F
+        const val FULL_BLUR_RADIUS: Float = 100F
         const val SHALLOW_BLUR_RADIUS: Float = 60F
-        const val UPDATE_RUNNABLE_INTERVAL: Long = 34
         const val CYCLE: Int = 360
-        const val SATURATION_FACTOR: Float = 1.2F
+        const val SATURATION_FACTOR: Float = 2F
         const val PICTURE_SIZE: Int = 60
     }
 
@@ -66,10 +75,20 @@ class BlendView @JvmOverloads constructor(
         imageViewBE = findViewById(R.id.type3)
         imageViewBG = findViewById(R.id.bg)
         rotateFrame = findViewById(R.id.rotate_frame)
+        blurredFrame = findViewById(R.id.blurredViews)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            curveBitmap =
+                BitmapFactory.decodeResource(
+                    resources,
+                    R.drawable.fg_blend_curving,
+                    BitmapFactory.Options().apply { inSampleSize = 16 })
+            invalidate()
+        }
 
         initializeImageSwitchers()
 
-        this.setRenderEffect(
+        blurredFrame.setRenderEffect(
             RenderEffect.createBlurEffect(FULL_BLUR_RADIUS, FULL_BLUR_RADIUS, Shader.TileMode.MIRROR)
         )
     }
@@ -102,6 +121,25 @@ class BlendView @JvmOverloads constructor(
     override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
         canvas.drawColor(overlayColor)
+        curveBitmap?.let { bmp ->
+            val viewWidth = width.toFloat()
+            val viewHeight = height.toFloat()
+
+            val bmpWidth = bmp.width.toFloat()
+            val bmpHeight = bmp.height.toFloat()
+
+            val scale = minOf(viewWidth / bmpWidth, viewHeight / bmpHeight)
+
+            val scaledWidth = bmpWidth * scale
+            val scaledHeight = bmpHeight * scale
+
+            val left = (viewWidth - scaledWidth) / 2f
+            val top = (viewHeight - scaledHeight) / 2f
+
+            val dstRect = RectF(left, top, left + scaledWidth, top + scaledHeight)
+
+            canvas.drawBitmap(bmp, null, dstRect, overlayPaint)
+        }
     }
 
     override fun onAttachedToWindow() {
@@ -164,36 +202,50 @@ class BlendView @JvmOverloads constructor(
             addUpdateListener { animator ->
                 val radius = animator.animatedValue as Float
                 val renderEffect = RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.MIRROR)
-                post { this@BlendView.setRenderEffect(renderEffect) }
+                post { blurredFrame.setRenderEffect(renderEffect) }
             }
             start()
         }
     }
 
     fun startRotationAnimation() {
-        if (this.alpha > 0) {
-            handler.removeCallbacks(rotationRunnable)
-            isAnimationOngoing = true
-            handler.postDelayed(rotationRunnable, UPDATE_RUNNABLE_INTERVAL)
+        if (!running && alpha > 0) {
+            running = true
+            lastFrameTimeNanos = System.nanoTime()
+            Choreographer.getInstance().postFrameCallback(this)
         }
     }
 
     fun stopRotationAnimation() {
-        handler.removeCallbacks(rotationRunnable)
-        isAnimationOngoing = false
+        running = false
+        Choreographer.getInstance().removeFrameCallback(this)
     }
 
+    private var lastFrameTimeNanos = 0L
+    private val frameIntervalNanos = 1_000_000_000L / 30  // 30fps
+    private var running = false
 
-    private val rotationRunnable = object : Runnable {
-        override fun run() {
+    override fun doFrame(frameTimeNanos: Long) {
+        if (!running) return
+        if (frameTimeNanos - lastFrameTimeNanos >= frameIntervalNanos) {
+            lastFrameTimeNanos = frameTimeNanos
             imageViewTS.rotation = (imageViewTS.rotation + 1.2f) % CYCLE
             imageViewBE.rotation = (imageViewBE.rotation + .67f) % CYCLE
             rotateFrame.rotation = (rotateFrame.rotation - .6f) % CYCLE
-            if (isAnimationOngoing) {
-                handler.postDelayed(this, UPDATE_RUNNABLE_INTERVAL)
-            }
+            overlayPaint.alpha = 30 + (30 * sineAlphaFloat()).toInt()
+            invalidate()
         }
+        Choreographer.getInstance().postFrameCallback(this)
     }
+
+    private var frame = 0
+
+    fun sineAlphaFloat(): Float {
+        frame++
+        val radians = frame * 0.05f
+        return (1f + cos(radians.toDouble())).toFloat() / 2f // 0.0 ~ 1.0
+    }
+
 
     private fun getBitmapFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
         var inputStream: InputStream? = null

@@ -39,12 +39,12 @@ class AccordViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
             savedStateHandle[BOTTOM_SHEET_PEEK_HEIGHT_TOKEN] = value
         }
     val mediaItemList: MutableLiveData<List<MediaItem>> = MutableLiveData()
-    val albumItemList: MutableLiveData<List<Album<MediaItem>>> = MutableLiveData()
-    val albumArtistItemList: MutableLiveData<List<Artist<MediaItem>>> = MutableLiveData()
-    val artistItemList: MutableLiveData<List<Artist<MediaItem>>> = MutableLiveData()
-    val genreItemList: MutableLiveData<List<Genre<MediaItem>>> = MutableLiveData()
-    val dateItemList: MutableLiveData<List<Date<MediaItem>>> = MutableLiveData()
-    val folderStructure: MutableLiveData<FileNode<MediaItem>> = MutableLiveData()
-    val shallowFolderStructure: MutableLiveData<FileNode<MediaItem>> = MutableLiveData()
+    val albumItemList: MutableLiveData<List<Album>> = MutableLiveData()
+    val albumArtistItemList: MutableLiveData<List<Artist>> = MutableLiveData()
+    val artistItemList: MutableLiveData<List<Artist>> = MutableLiveData()
+    val genreItemList: MutableLiveData<List<Genre>> = MutableLiveData()
+    val dateItemList: MutableLiveData<List<Date>> = MutableLiveData()
+    val folderStructure: MutableLiveData<FileNode> = MutableLiveData()
+    val shallowFolderStructure: MutableLiveData<FileNode> = MutableLiveData()
     val allFolderSet: MutableLiveData<Set<String>> = MutableLiveData()
 }

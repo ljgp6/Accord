@@ -3,6 +3,7 @@ package uk.akane.accord.ui.components
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Outline
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
@@ -17,6 +18,7 @@ import android.view.WindowInsets
 import android.view.animation.PathInterpolator
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.marginBottom
@@ -25,10 +27,10 @@ import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
 import androidx.window.layout.WindowMetricsCalculator
-import com.google.android.material.motion.MotionUtils
 import uk.akane.accord.R
-import uk.akane.accord.logic.dpToPx
+import uk.akane.accord.logic.dp
 import uk.akane.accord.logic.scale
+import uk.akane.accord.ui.MainActivity
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.absoluteValue
@@ -48,9 +50,10 @@ class FloatingPanelLayout @JvmOverloads constructor(
         const val TAG = "FloatingPanelLayout"
     }
 
+    private val activity
+        get() = context as MainActivity
     private val windowHeight: Int
         get() = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(context).bounds.height()
-
     private var valueAnimator: ValueAnimator? = null
 
     private var gestureDetector = GestureDetector(context, this)
@@ -74,8 +77,10 @@ class FloatingPanelLayout @JvmOverloads constructor(
     private var defaultUpActionDuration = 285L
     private var defaultInterpolator = PathInterpolator(0.2f, 0f, 0f, 1f)
 
-    private var fullPlayer: FullPlayer
+    private var fullPlayer: FullPlayer? = null
     private var previewPlayer: PreviewPlayer
+
+    private val insetController = WindowCompat.getInsetsController(activity.window, this)
 
     enum class SlideStatus {
         COLLAPSED, EXPANDED, SLIDING
@@ -88,7 +93,7 @@ class FloatingPanelLayout @JvmOverloads constructor(
     }
 
     private var state: SlideStatus = SlideStatus.COLLAPSED
-    var onSlideListener: OnSlideListener? = null
+    private var onSlideListeners: MutableList<OnSlideListener> = mutableListOf()
 
     inner class OutlineProvider(
         private val rect: Rect = Rect(),
@@ -113,7 +118,42 @@ class FloatingPanelLayout @JvmOverloads constructor(
         inflate(context, R.layout.layout_floating_panel, this)
         fullPlayer = findViewById(R.id.full_player)
         previewPlayer = findViewById(R.id.preview_player)
-        outlineProvider = OutlineProvider(scaleX = 1.02f, scaleY = 1.00f, yShift = (-2).dpToPx(context))
+        outlineProvider = OutlineProvider(scaleX = 1.02f, scaleY = 1.00f, yShift = (-2).dp.px.toInt())
+        addOnSlideListener(object : OnSlideListener {
+            override fun onSlideStatusChanged(status: SlideStatus) {
+                when (status) {
+                    SlideStatus.EXPANDED -> {
+                        if (!isDarkMode(context) && insetController.isAppearanceLightStatusBars) {
+                            WindowCompat
+                                .getInsetsController(activity.window, this@FloatingPanelLayout)
+                                .isAppearanceLightStatusBars = false
+                        }
+                    }
+                    SlideStatus.COLLAPSED -> {
+                        if (!isDarkMode(context) && !insetController.isAppearanceLightStatusBars) {
+                            WindowCompat
+                                .getInsetsController(activity.window, this@FloatingPanelLayout)
+                                .isAppearanceLightStatusBars = true
+                        }
+                    }
+                    SlideStatus.SLIDING -> {
+                        if (!isDarkMode(context) && !insetController.isAppearanceLightStatusBars) {
+                            WindowCompat
+                                .getInsetsController(activity.window, this@FloatingPanelLayout)
+                                .isAppearanceLightStatusBars = true
+                        }
+                    }
+                }
+            }
+
+            override fun onSlide(value: Float) {
+            }
+
+        })
+    }
+
+    fun addOnSlideListener(onSlideListener: OnSlideListener) {
+        onSlideListeners.add(onSlideListener)
     }
 
     override fun setBackground(background: Drawable?) {
@@ -148,6 +188,11 @@ class FloatingPanelLayout @JvmOverloads constructor(
         doOnLayout {
             initialHeight = height
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        onSlideListeners.clear()
+        super.onDetachedFromWindow()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -266,29 +311,35 @@ class FloatingPanelLayout @JvmOverloads constructor(
     }
 
     private fun onSlide(progress: Float) {
-        onSlideListener?.onSlide(progress)
+        onSlideListeners.forEach {
+            it.onSlide(progress)
+        }
         val prevState = state
         BigDecimal(progress.toDouble()).setScale(3, RoundingMode.HALF_UP).toDouble().let {
             when (it) {
                 1.0 -> {
                     state = SlideStatus.EXPANDED
-                    fullPlayer.alpha = 1F
+                    fullPlayer?.alpha = 1F
                     previewPlayer.alpha = 0F
                 }
                 0.0 -> {
                     state = SlideStatus.COLLAPSED
-                    fullPlayer.alpha = 0F
+                    fullPlayer?.alpha = 0F
                     previewPlayer.alpha = 1F
                 }
                 else -> {
                     state = SlideStatus.SLIDING
-                    fullPlayer.alpha = it.toFloat()
+                    fullPlayer?.alpha = it.toFloat()
                     previewPlayer.alpha = (1 - it).toFloat()
                 }
             }
         }
         if (prevState != state) {
-            onSlideListener?.onSlideStatusChanged(state)
+            onSlideListeners.forEach { it.onSlideStatusChanged(state) }
         }
     }
+
+    private fun isDarkMode(context: Context): Boolean =
+        context.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 }
