@@ -66,6 +66,7 @@ class BlendView @JvmOverloads constructor(
         const val SHALLOW_BLUR_RADIUS: Float = 60F
         const val CYCLE: Int = 360
         const val SATURATION_FACTOR: Float = 2F
+        const val BRIGHTNESS_FACTOR: Float = 10F
         const val PICTURE_SIZE: Int = 60
     }
 
@@ -289,6 +290,18 @@ class BlendView @JvmOverloads constructor(
 
         val enhancePaint = Paint()
         val colorMatrix = ColorMatrix().apply { setSaturation(SATURATION_FACTOR) }
+
+        val brightnessMatrix = ColorMatrix(
+            floatArrayOf(
+                1f, 0f, 0f, 0f, BRIGHTNESS_FACTOR,
+                0f, 1f, 0f, 0f, BRIGHTNESS_FACTOR,
+                0f, 0f, 1f, 0f, BRIGHTNESS_FACTOR,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+
+        colorMatrix.postConcat(brightnessMatrix)
+
         enhancePaint.colorFilter = ColorMatrixColorFilter(colorMatrix)
 
         val canvas = Canvas(enhancedBitmap)

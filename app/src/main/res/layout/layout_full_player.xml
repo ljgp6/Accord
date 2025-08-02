@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!-- Full Player Layout -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/full_player"
@@ -26,7 +27,6 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="26dp"
         android:layout_marginTop="24dp"
-        android:visibility="gone"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@id/divider"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,9 +41,8 @@
         android:fontFamily="@font/inter_semibold"
         android:textSize="19sp"
         android:includeFontPadding="false"
-        android:visibility="gone"
         android:layout_marginTop="36dp"
-        android:text="Saigetsu / U2 Akiyama"
+        android:text="まよいづき (feat. 実咲)"
         android:layout_marginHorizontal="@dimen/full_cover_radius"
         app:textViewLayer="standard"
         app:layout_constraintTop_toBottomOf="@id/cover"
@@ -58,8 +57,7 @@
         android:fontFamily="@font/inter_regular"
         android:textSize="19sp"
         android:includeFontPadding="false"
-        android:visibility="gone"
-        android:text="Twilight Frontier"
+        android:text="onoken"
         app:textViewLayer="primary"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="@id/title"
@@ -79,12 +77,50 @@
         android:layout_width="0dp"
         android:layout_height="15dp"
         android:paddingVertical="4dp"
-        android:visibility="gone"
         android:layout_marginHorizontal="34dp"
         android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@id/subtitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <uk.akane.cupertino.widget.OverlayButton
+        android:id="@+id/list"
+        android:layout_height="48dp"
+        android:layout_width="48dp"
+        android:layout_marginBottom="36dp"
+        app:iconSize="32dp"
+        app:viewLayer="primary"
+        app:icon="@drawable/ic_bulletin_select"
+        app:layout_constraintStart_toEndOf="@id/airplay"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <uk.akane.cupertino.widget.OverlayButton
+        android:id="@+id/airplay"
+        android:layout_height="48dp"
+        android:layout_width="48dp"
+        app:iconSize="32dp"
+        app:viewLayer="primary"
+        app:icon="@drawable/ic_airplay_radio"
+        app:layout_constraintStart_toEndOf="@id/caption"
+        app:layout_constraintEnd_toStartOf="@id/list"
+        app:layout_constraintTop_toTopOf="@id/list"
+        app:layout_constraintBottom_toBottomOf="@id/list"
+        />
+
+    <uk.akane.cupertino.widget.OverlayButton
+        android:id="@+id/caption"
+        android:layout_height="48dp"
+        android:layout_width="48dp"
+        app:iconSize="32dp"
+        app:viewLayer="primary"
+        app:icon="@drawable/ic_quote_select"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/airplay"
+        app:layout_constraintTop_toTopOf="@id/list"
+        app:layout_constraintBottom_toBottomOf="@id/list"
         />
 
     <include
